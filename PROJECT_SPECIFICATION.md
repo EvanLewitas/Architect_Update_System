@@ -154,6 +154,7 @@ The spreadsheet contains these working tabs:
 | Client Name | Unique project key |
 | Response Type | Written Update or No Change |
 | Update Text | Written response, blank only for No Change |
+| Documents Needed for Permit | Optional note identifying documents CIC or the client still needs to provide for permitting |
 | Display Update After Submission | Substantive update selected by the display rules |
 | Replaced Override ID | Override replaced by a new written architect update, when applicable |
 | Submission Metadata | Optional technical audit information supported by Apps Script |
@@ -211,6 +212,7 @@ Each card shows:
 - Submitter name associated with the last substantive update
 - **No change** checkbox above the new-update field
 - Multiline status-update field
+- Optional **Documents Needed for Permit** field for permit-related items CIC or the client must still provide
 - Card completion status
 
 ### 6.5 Days Since Acceptance
@@ -254,6 +256,7 @@ A current-week **No change** response does not replace the substantive update te
 
 - The **No change** checkbox appears above the update field.
 - Each project requires either a checked No change box or a nonblank written update.
+- The Documents Needed for Permit field is optional and does not affect whether a project card is complete.
 - Whitespace alone is not a valid written update.
 - A project card displays **Complete** after it has a valid response.
 - Individual cards do not have Submit buttons.

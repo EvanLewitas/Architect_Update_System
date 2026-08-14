@@ -2,7 +2,7 @@
 
 ## Production files
 
-- `Code.gs` contains the spreadsheet database layer, security, reporting, synchronization, email automation, and triggers.
+- `code.js` contains the spreadsheet database layer, security, reporting, synchronization, email automation, and triggers.
 - `Index.html` contains the approved architect-facing portal.
 - `appsscript.json` sets the project time zone to Eastern and enables the V8 runtime.
 
@@ -10,7 +10,7 @@
 
 1. Open the `ARCHITECT STATUS UPDATES` Google Sheet.
 2. Select **Extensions > Apps Script**.
-3. Replace the default `Code.gs` contents with the supplied `Code.gs`.
+3. Replace the default Apps Script server file contents with the supplied `code.js`.
 4. Add an HTML file named `Index` and paste in `Index.html`.
 5. Open **Project Settings**, enable **Show appsscript.json**, and replace it with the supplied manifest.
 6. Save all files.
