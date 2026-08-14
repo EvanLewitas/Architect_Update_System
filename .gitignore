@@ -1,0 +1,4 @@
+_backup_stale_export_*/
+*.xlsx
+.DS_Store
+Thumbs.db

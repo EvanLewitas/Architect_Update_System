@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CIC Architect Update Portal</title>
+  <style>
+    :root{--navy-950:#082236;--navy-900:#0b304b;--blue-700:#14648d;--blue-600:#1d79aa;--blue-100:#e9f4fa;--blue-050:#f4f9fc;--ink:#172a36;--muted:#61717b;--line:#d6e0e6;--surface:#fff;--page:#f2f6f8;--green:#24775c;--green-soft:#e9f6f1;--amber:#8b5d0a;--amber-soft:#fff5db;--red:#a63d3d;--red-soft:#fff0f0;--shadow:0 16px 38px rgba(10,39,57,.1);--radius-lg:22px;--radius-md:14px;--radius-sm:9px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at top left,rgba(62,145,190,.12),transparent 32rem),var(--page);color:var(--ink);font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5}button,textarea,input{font:inherit}.page-shell{width:min(1180px,calc(100% - 32px));margin:28px auto 64px}
+    .portal-header{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:40px;padding:42px 46px;border:1px solid rgba(255,255,255,.18);border-radius:var(--radius-lg);background:linear-gradient(116deg,var(--navy-950) 0%,var(--navy-900) 48%,#146e9f 100%);box-shadow:var(--shadow);color:#fff}.portal-header:after{position:absolute;right:-90px;bottom:-155px;width:360px;height:360px;border:1px solid rgba(255,255,255,.12);border-radius:50%;content:""}.brand-lockup{position:relative;z-index:1;display:flex;align-items:center;min-height:74px;margin-bottom:30px}.brand-logo{display:block;width:min(355px,100%);height:auto;max-height:84px;object-fit:contain;object-position:left center}.eyebrow{margin:0 0 8px;color:rgba(255,255,255,.74);font-size:.74rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase}.portal-header h1{position:relative;z-index:1;max-width:760px;margin:0;font-size:clamp(2.2rem,6vw,4.35rem);font-weight:400;letter-spacing:-.035em;line-height:.98}.header-copy{position:relative;z-index:1;max-width:740px;margin:22px 0 0;color:rgba(255,255,255,.82);font-size:1.02rem}.status-panel{position:relative;z-index:1;align-self:end;padding:24px;border:1px solid rgba(255,255,255,.22);border-radius:15px;background:rgba(255,255,255,.11);backdrop-filter:blur(8px)}.status-count{display:block;margin-bottom:5px;color:rgba(255,255,255,.76);font-size:.9rem;font-weight:700}.status-label{display:block;font-size:1.32rem;font-weight:700}.progress-track{overflow:hidden;height:8px;margin-top:16px;border-radius:999px;background:rgba(255,255,255,.18)}.progress-bar{width:0;height:100%;border-radius:inherit;background:#fff;transition:width 220ms ease}
+    .instructions,.notice{display:flex;align-items:flex-start;gap:14px;margin:22px 0;padding:17px 20px;border:1px solid #cbdce6;border-radius:var(--radius-md);background:rgba(255,255,255,.86);box-shadow:0 8px 20px rgba(24,55,72,.05)}.instructions-mark{display:grid;flex:0 0 auto;width:27px;height:27px;place-items:center;border-radius:50%;background:var(--blue-700);color:#fff;font-size:.9rem;font-weight:700}.instructions p,.notice p{margin:1px 0 0;color:#425762}.notice{display:none}.notice.is-visible{display:flex}.notice.error{border-color:#e3adad;background:var(--red-soft)}.notice.error .instructions-mark{background:var(--red)}.loading{display:grid;min-height:260px;place-items:center;margin:22px 0;border:1px solid #cbdce6;border-radius:var(--radius-lg);background:#fff;color:var(--muted);text-align:center}.spinner{width:34px;height:34px;margin:0 auto 14px;border:3px solid #d6e0e6;border-top-color:var(--blue-600);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.projects{display:grid;gap:22px}
+    .project-card{overflow:hidden;border:2px solid #8fc0da;border-radius:var(--radius-lg);background:var(--surface);box-shadow:0 12px 30px rgba(20,67,91,.075);transition:border-color 180ms ease,box-shadow 180ms ease}.project-card.is-complete{border-color:#72b69f;box-shadow:0 12px 30px rgba(36,119,92,.1)}.project-card.has-error{border-color:#d77d7d}.project-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:23px 26px 20px;border-bottom:1px solid var(--line)}.project-heading h2{margin:0 0 5px;font-size:clamp(1.15rem,2vw,1.38rem);font-weight:500;line-height:1.25}.acceptance{margin:0;color:var(--muted);font-size:.96rem}.project-status{flex:0 0 auto;padding:7px 12px;border:1px solid #e6d19a;border-radius:999px;background:var(--amber-soft);color:var(--amber);font-size:.78rem;font-weight:700}.is-complete .project-status{border-color:#b6ddcf;background:var(--green-soft);color:var(--green)}.project-body{display:grid;grid-template-columns:minmax(360px,.9fr) minmax(0,1.1fr);gap:28px;padding:25px 26px 28px}.section-title{margin:0 0 11px;color:#29404d;font-size:1rem;font-weight:500}
+    .milestone-list{overflow:hidden;margin:0;padding:0;border:1px solid var(--line);border-radius:var(--radius-sm);list-style:none}.milestone{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;min-height:53px;gap:9px;padding:8px 13px;border-bottom:1px solid var(--line);background:#fff}.milestone:last-child{border-bottom:0}.milestone.is-next{box-shadow:inset 4px 0 0 var(--blue-600);background:var(--blue-100)}.milestone-icon{display:grid;width:22px;height:22px;place-items:center;border:1px solid #d4dfe4;border-radius:50%;color:transparent;font-size:.78rem;font-weight:700}.milestone.is-done .milestone-icon{border-color:transparent;background:var(--green-soft);color:var(--green)}.milestone-name{font-size:.9rem;font-weight:700}.milestone-date{color:var(--muted);font-size:.84rem;font-style:normal;text-align:right}.latest-update{margin:0;padding:16px 17px;border-left:4px solid var(--blue-600);border-radius:8px;background:var(--blue-050);color:#2f4653;white-space:pre-wrap}.update-meta{margin:8px 0;color:var(--muted);font-size:.86rem}.current-week{margin:0 0 18px;padding:8px 11px;border-radius:7px;background:var(--green-soft);color:var(--green);font-size:.82rem;font-weight:700}.current-week:empty{display:none}
+    .no-change-label{display:inline-flex;align-items:center;gap:9px;margin-bottom:16px;color:#253b47;font-size:.9rem;font-weight:700;cursor:pointer}.no-change-label input{width:20px;height:20px;margin:0;accent-color:var(--blue-700)}.field-label{display:block;margin:16px 0 8px;color:#253b47;font-size:.9rem;font-weight:700}.field-label:first-of-type{margin-top:0}textarea{display:block;width:100%;min-height:132px;resize:vertical;padding:14px 15px;border:1px solid #bbcbd4;border-radius:var(--radius-sm);background:#fff;color:var(--ink);outline:none;transition:border-color 150ms ease,box-shadow 150ms ease,background 150ms ease}textarea.documents-needed{min-height:96px}textarea:focus{border-color:var(--blue-600);box-shadow:0 0 0 3px rgba(29,121,170,.15)}textarea:disabled{background:#eef2f4;color:#7d8a91;cursor:not-allowed}.validation-message{min-height:22px;margin:10px 0 0;color:var(--amber);font-size:.84rem;font-weight:700}.is-complete .validation-message{color:var(--green)}.has-error .validation-message{color:var(--red)}
+    .submit-section{display:grid;grid-template-columns:1fr auto;align-items:center;gap:24px;margin-top:24px;padding:24px 27px;border:1px solid #cad9e2;border-radius:var(--radius-md);background:#fff;box-shadow:0 12px 28px rgba(18,55,75,.08)}.submit-section h2{margin:0 0 4px;font-size:1.05rem}.submit-summary{margin:0;color:var(--muted);font-size:.92rem}.submit-button{min-width:220px;min-height:52px;padding:13px 24px;border:0;border-radius:10px;background:var(--blue-700);box-shadow:0 8px 18px rgba(20,100,141,.22);color:#fff;font-weight:700;cursor:pointer;transition:transform 150ms ease,background 150ms ease,opacity 150ms ease}.submit-button:hover:not(:disabled){background:#0f587e;transform:translateY(-1px)}.submit-button:focus-visible{outline:3px solid rgba(29,121,170,.32);outline-offset:3px}.submit-button:disabled{box-shadow:none;background:#a7bac5;cursor:not-allowed;opacity:.82}.confirmation{display:none;margin-top:18px;padding:18px 21px;border:1px solid #a9d3c4;border-radius:var(--radius-md);background:var(--green-soft);color:#1c6049}.confirmation.is-visible{display:block}.confirmation strong{display:block;margin-bottom:3px}.footer-note{margin:24px 0 0;color:#74828a;font-size:.78rem;text-align:center}.hidden{display:none!important}
+    @media(max-width:860px){.page-shell{width:min(100% - 22px,720px);margin-top:11px}.portal-header{grid-template-columns:1fr;gap:26px;padding:30px 26px}.brand-lockup{min-height:60px;margin-bottom:24px}.brand-logo{width:min(310px,90%);max-height:70px}.status-panel{align-self:stretch}.project-body{grid-template-columns:1fr}.submit-section{grid-template-columns:1fr}.submit-button{width:100%}}
+    @media(max-width:520px){.portal-header{padding:25px 20px;border-radius:16px}.portal-header h1{font-size:2.35rem}.header-copy{font-size:.94rem}.project-card{border-radius:16px}.project-heading{display:grid;padding:20px 18px 17px}.project-status{width:max-content}.project-body{gap:22px;padding:21px 18px 24px}.milestone{grid-template-columns:25px minmax(0,1fr)}.milestone-date{grid-column:2;text-align:left}.submit-section{padding:20px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <header class="portal-header">
+      <div>
+        <div class="brand-lockup"><img class="brand-logo" src="https://centerislandcontracting.com/wp-content/uploads/2025/07/logo-center-island-white-h.png" alt="Center Island Contracting"></div>
+        <p class="eyebrow">Weekly architect update portal</p>
+        <h1 id="architectName">Project Updates</h1>
+        <p class="header-copy" id="headerCopy">Loading your assigned projects...</p>
+      </div>
+      <aside class="status-panel" aria-label="Current submission status">
+        <span class="status-count" id="statusCount">Loading...</span>
+        <span class="status-label" id="statusLabel">Please wait</span>
+        <div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progressBar"></div></div>
+      </aside>
+    </header>
+    <section class="instructions" aria-label="Instructions"><span class="instructions-mark" aria-hidden="true">i</span><p>Review each project below. Enter a written update or select <strong>No change</strong> for every project, then submit all updates together.</p></section>
+    <section class="notice error" id="pageError" role="alert"><span class="instructions-mark" aria-hidden="true">!</span><p id="pageErrorText"></p></section>
+    <section class="loading" id="loading" aria-live="polite"><div><div class="spinner" aria-hidden="true"></div><strong>Loading assigned projects...</strong></div></section>
+    <form id="architectUpdateForm" class="hidden" novalidate>
+      <section class="projects" id="projects" aria-label="Assigned projects"></section>
+      <section class="submit-section" aria-labelledby="submitHeading">
+        <div><h2 id="submitHeading">Submit All Updates</h2><p class="submit-summary" id="submitSummary"></p></div>
+        <button class="submit-button" id="submitButton" type="submit" disabled>Submit All Updates</button>
+      </section>
+    </form>
+    <section class="confirmation" id="confirmation" role="status" aria-live="polite" tabindex="-1"><strong>Updates recorded successfully.</strong><span id="confirmationDetail"></span></section>
+    <p class="footer-note">Center Island Contracting · Architect Update Portal</p>
+  </main>
+  <script>
+    (() => {
+      const state={accessToken:'',portal:null,cards:[],submitting:false};
+      const form=document.getElementById('architectUpdateForm');
+      const projectsElement=document.getElementById('projects');
+      const loading=document.getElementById('loading');
+      const submitButton=document.getElementById('submitButton');
+      const submitSummary=document.getElementById('submitSummary');
+      const statusCount=document.getElementById('statusCount');
+      const statusLabel=document.getElementById('statusLabel');
+      const progressBar=document.getElementById('progressBar');
+      const confirmation=document.getElementById('confirmation');
+      const confirmationDetail=document.getElementById('confirmationDetail');
+      const pageError=document.getElementById('pageError');
+      const pageErrorText=document.getElementById('pageErrorText');
+      const element=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined&&text!==null)node.textContent=text;return node};
+
+      const createMilestone=milestone=>{
+        const item=element('li','milestone');item.classList.toggle('is-done',milestone.complete);item.classList.toggle('is-next',milestone.next);
+        item.append(element('span','milestone-icon',milestone.complete?'✓':''),element('strong','milestone-name',milestone.name),element('time','milestone-date',milestone.dateLabel||'Pending'));
+        return item
+      };
+
+      const createProjectCard=(project,index)=>{
+        const card=element('article','project-card');const heading=element('div','project-heading');const headingCopy=element('div');
+        const titleParts=[project.clientName];if(project.projectType||project.town)titleParts.push(`(${[project.projectType,project.town].filter(Boolean).join(' - ')})`);
+        headingCopy.append(element('h2','',titleParts.join(' ')));
+        const acceptanceText=project.proposalAcceptedLabel?`Proposal accepted ${project.proposalAcceptedLabel} · ${project.daysSinceAcceptance} calendar days ago`:'Proposal acceptance date not entered';
+        headingCopy.append(element('p','acceptance',acceptanceText));const cardStatus=element('span','project-status','Needs response');heading.append(headingCopy,cardStatus);
+
+        const body=element('div','project-body');
+        const milestonesSection=element('section');const milestoneHeading=element('h3','section-title','Milestones');milestoneHeading.id=`milestones-${index}`;
+        milestonesSection.setAttribute('aria-labelledby',milestoneHeading.id);const milestoneList=element('ol','milestone-list');
+        project.milestones.forEach(m=>milestoneList.append(createMilestone(m)));milestonesSection.append(milestoneHeading,milestoneList);
+
+        const updateSection=element('section');const updateHeading=element('h3','section-title','Latest displayed update');updateHeading.id=`update-${index}`;
+        updateSection.setAttribute('aria-labelledby',updateHeading.id);const latest=element('blockquote','latest-update',project.latestUpdateText||'No written update is on file.');
+        const metaText=project.latestUpdateDateLabel?`${project.latestUpdateDateLabel}${project.latestUpdateSubmitter?` by ${project.latestUpdateSubmitter}`:''}`:'';
+        const meta=element('p','update-meta',metaText);
+        const currentText=project.currentResponseType?`Current week: ${project.currentResponseType} submitted${project.currentSubmittedAt?` on ${project.currentSubmittedAt}`:''}`:'';
+        const current=element('p','current-week',currentText);
+
+        const noChangeLabel=element('label','no-change-label');const checkbox=element('input','no-change');checkbox.type='checkbox';checkbox.checked=project.currentResponseType==='No Change';checkbox.setAttribute('aria-label',`No change for ${project.clientName}`);noChangeLabel.append(checkbox,element('span','','No change for this project'));
+
+        const fieldLabel=element('label','field-label','New status update');const textarea=element('textarea','update-text');textarea.id=`project-update-${index}`;textarea.placeholder='Write the current project status...';textarea.maxLength=5000;textarea.value=project.currentUpdateText||'';textarea.disabled=checkbox.checked;fieldLabel.htmlFor=textarea.id;
+
+        const documentsLabel=element('label','field-label','DOCUMENTS NEEDED FOR PERMIT (FROM CIC or CLIENT):');const documentsTextarea=element('textarea','documents-needed');documentsTextarea.id=`project-documents-${index}`;documentsTextarea.placeholder="Plumber's license, survey, CIC insurance, etc.";documentsTextarea.maxLength=5000;documentsTextarea.value=project.currentDocumentsNeeded||'';documentsLabel.htmlFor=documentsTextarea.id;
+
+        const validation=element('p','validation-message','Enter a written update or select No change.');
+        validation.setAttribute('aria-live','polite');
+        updateSection.append(updateHeading,latest,meta,current,noChangeLabel,fieldLabel,textarea,documentsLabel,documentsTextarea,validation);
+        body.append(milestonesSection,updateSection);card.append(heading,body);
+
+        const item={project,card,cardStatus,checkbox,textarea,documentsTextarea,validation};
+        checkbox.addEventListener('change',()=>{if(checkbox.checked){textarea.value='';textarea.disabled=true}else{textarea.disabled=false;textarea.focus()}confirmation.classList.remove('is-visible');updatePageStatus()});
+        textarea.addEventListener('input',()=>{if(textarea.value.trim())checkbox.checked=false;confirmation.classList.remove('is-visible');updatePageStatus()});
+        documentsTextarea.addEventListener('input',()=>{confirmation.classList.remove('is-visible');updatePageStatus()});
+        return item
+      };
+
+      const cardResponse=item=>{
+        const text=item.textarea.value.trim();
+        const documentsNeeded=item.documentsTextarea.value.trim();
+        return{clientName:item.project.clientName,noChange:item.checkbox.checked,updateText:text,documentsNeeded:documentsNeeded,complete:item.checkbox.checked||text.length>0}
+      };
+
+      const updateCard=item=>{
+        const response=cardResponse(item);
+        item.card.classList.toggle('is-complete',response.complete);
+        item.card.classList.remove('has-error');
+        item.cardStatus.textContent=response.complete?'Complete':'Needs response';
+        item.validation.textContent=response.noChange?'No change selected.':response.updateText?'Written update ready.':'Enter a written update or select No change.'
+      };
+
+      const updatePageStatus=()=>{
+        state.cards.forEach(updateCard);
+        const responses=state.cards.map(cardResponse);
+        const complete=responses.filter(r=>r.complete).length;
+        const written=responses.filter(r=>r.updateText).length;
+        const noChange=responses.filter(r=>r.noChange).length;
+        const total=responses.length;
+        const allComplete=total>0&&complete===total;
+        statusCount.textContent=`${complete} of ${total} complete`;
+        statusLabel.textContent=allComplete&&state.portal.currentRevision?`Revision ${state.portal.currentRevision} on file`:allComplete?'Ready to submit':'Updates required';
+        progressBar.style.width=total?`${complete/total*100}%`:'0%';
+        submitButton.disabled=!allComplete||state.submitting;
+        submitSummary.textContent=allComplete?`Ready to create revision ${state.portal.currentRevision+1} with ${written} written ${written===1?'update':'updates'} and ${noChange} No change ${noChange===1?'response':'responses'}.`:`Complete all ${total} projects to enable submission. ${complete} ${complete===1?'project is':'projects are'} ready.`
+      };
+
+      const renderPortal=data=>{
+        state.portal=data;
+        document.getElementById('architectName').textContent=data.architectName;
+        document.getElementById('headerCopy').textContent=`Reporting week of ${data.weekLabel}. Submit every active pre-production project by ${data.deadlineLabel}.`;
+        projectsElement.replaceChildren();
+        state.cards=data.projects.map((project,index)=>createProjectCard(project,index));
+        state.cards.forEach(item=>projectsElement.append(item.card));
+        loading.classList.add('hidden');
+        form.classList.remove('hidden');
+        if(!state.cards.length){form.classList.add('hidden');showError('No active projects are assigned to this architect.');return}
+        updatePageStatus()
+      };
+
+      const showError=message=>{
+        loading.classList.add('hidden');
+        form.classList.add('hidden');
+        pageErrorText.textContent=message;
+        pageError.classList.add('is-visible')
+      };
+
+      const loadPortal=()=>{
+        if(!window.google||!google.script||!google.script.url){showError('Open this page using the private link supplied by Center Island Contracting.');return}
+        google.script.url.getLocation(location=>{
+          state.accessToken=location.parameter.access||'';
+          if(!state.accessToken){showError('This private link is missing its access code. Contact Center Island Contracting for a new link.');return}
+          google.script.run.withSuccessHandler(renderPortal).withFailureHandler(error=>showError(error.message)).getPortalData(state.accessToken)
+        })
+      };
+
+      form.addEventListener('submit',event=>{
+        event.preventDefault();
+        pageError.classList.remove('is-visible');
+        const responses=state.cards.map(cardResponse);
+        const incomplete=state.cards.filter((item,index)=>!responses[index].complete);
+        if(incomplete.length){incomplete.forEach(item=>item.card.classList.add('has-error'));incomplete[0].card.scrollIntoView({behavior:'smooth',block:'center'});return}
+        state.submitting=true;
+        submitButton.textContent='Submitting...';
+        updatePageStatus();
+        const payload={responses,metadata:{browserTimeZone:Intl.DateTimeFormat().resolvedOptions().timeZone||'',screen:`${window.screen.width}x${window.screen.height}`}};
+        google.script.run.withSuccessHandler(receipt=>{
+          state.submitting=false;
+          state.portal.currentRevision=receipt.revision;
+          submitButton.textContent='Submit All Updates';
+          confirmationDetail.textContent=` Revision ${receipt.revision} recorded at ${receipt.submittedAt}. ${receipt.projectCount} project ${receipt.projectCount===1?'response':'responses'} saved.${receipt.notificationWarning?` ${receipt.notificationWarning}`:''}`;
+          confirmation.classList.add('is-visible');
+          confirmation.focus();
+          updatePageStatus()
+        }).withFailureHandler(error=>{
+          state.submitting=false;
+          submitButton.textContent='Submit All Updates';
+          pageErrorText.textContent=error.message||'The submission failed. Your entries remain on this page. Try again or contact Center Island Contracting.';
+          pageError.classList.add('is-visible');
+          pageError.scrollIntoView({behavior:'smooth',block:'center'});
+          updatePageStatus()
+        }).saveSubmission(state.accessToken,payload)
+      });
+
+      loadPortal();
+    })();
+  </script>
+</body>
+</html>
