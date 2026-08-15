@@ -27,6 +27,11 @@ const MILESTONE_HEADERS = Object.freeze([
   'Application Sent to Building Department',
 ]);
 
+const CLIENT_PROVIDED_PLAN_MILESTONES = Object.freeze([
+  { header: 'CDs Approved', name: 'CDs Approved' },
+  { header: 'Application Sent to Building Department', name: 'Plans Submitted' },
+]);
+
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('CIC Architect Updates')
@@ -403,8 +408,12 @@ function buildPortalUrl_(token, config) {
 function portalProject_(project, currentRow, displayValue) {
   const proposalAccepted = project['Proposal Accepted'];
   const display = displayValue || { text: '', date: '', submitter: '' };
-  const milestones = MILESTONE_HEADERS.map(function (header) {
-    return { name: header, date: dateKey_(project[header]), dateLabel: formatDate_(project[header], 'MMMM d, yyyy') };
+  const milestones = milestoneDefinitionsForProject_(project).map(function (definition) {
+    return {
+      name: definition.name,
+      date: dateKey_(project[definition.header]),
+      dateLabel: formatDate_(project[definition.header], 'MMMM d, yyyy'),
+    };
   });
   let nextFound = false;
   milestones.forEach(function (milestone) {
@@ -420,6 +429,7 @@ function portalProject_(project, currentRow, displayValue) {
     proposalAccepted: dateKey_(proposalAccepted),
     proposalAcceptedLabel: formatDate_(proposalAccepted, 'MMMM d, yyyy'),
     daysSinceAcceptance: daysSince_(proposalAccepted),
+    clientProvidedPlans: isClientProvidedPlans_(project),
     milestones: milestones,
     latestUpdateText: display.text,
     latestUpdateDate: dateKey_(display.date),
@@ -431,6 +441,17 @@ function portalProject_(project, currentRow, displayValue) {
     currentSubmittedAt: currentRow ? formatDate_(currentRow['Submitted At'], 'MMMM d, yyyy h:mm a') + ' Eastern' : '',
     currentRevision: currentRow ? Number(currentRow['Revision Number']) || 0 : 0,
   };
+}
+
+function milestoneDefinitionsForProject_(project) {
+  if (isClientProvidedPlans_(project)) return CLIENT_PROVIDED_PLAN_MILESTONES;
+  return MILESTONE_HEADERS.map(function (header) {
+    return { header: header, name: header };
+  });
+}
+
+function isClientProvidedPlans_(project) {
+  return isYes_(project['Client Provided Plans']) || normalize_(project['Assigned Architect']) === 'client provided';
 }
 
 function validateResponses_(input, activeByClient) {
@@ -671,7 +692,9 @@ function syncProjectsFromSource() {
       updated += 1;
     } else {
       const rowNumber = firstEmptyRowInColumn_(destination, 1, CIC.FIRST_DATA_ROW);
-      destination.getRange(rowNumber, 1, 1, 19).setValues([[].concat(values, ['', '', '', '', '', '', '', '', '', '', '', ''])]);
+      const projectColumnCount = headerColumn_(CIC.PROJECTS, 'Current Status');
+      const blanks = Array(Math.max(projectColumnCount - values.length, 0)).fill('');
+      destination.getRange(rowNumber, 1, 1, projectColumnCount).setValues([values.concat(blanks)]);
       destination.getRange(rowNumber, 9).setFormula('=IF(H' + rowNumber + '="","",MAX(0,TODAY()-H' + rowNumber + '))');
       added += 1;
     }
@@ -682,7 +705,7 @@ function syncProjectsFromSource() {
     if (key && !seen[key] && isYes_(row.Active)) destination.getRange(row._rowNumber, headerColumn_(CIC.PROJECTS, 'Active')).setValue('No');
   });
   getSheet_(CIC.CONTROL).getRange('B9').setValue(now);
-  destination.getRange(CIC.FIRST_DATA_ROW, 1, Math.max(destination.getLastRow() - CIC.FIRST_DATA_ROW + 1, 1), 19).sort([{ column: 4, ascending: true }, { column: 1, ascending: true }]);
+  destination.getRange(CIC.FIRST_DATA_ROW, 1, Math.max(destination.getLastRow() - CIC.FIRST_DATA_ROW + 1, 1), headerColumn_(CIC.PROJECTS, 'Current Status')).sort([{ column: 4, ascending: true }, { column: 1, ascending: true }]);
   refreshCurrentReport_();
   refreshControlDashboard_();
   recordEvent_('INFO', 'SOURCE SYNC', 'Added ' + added + ', updated ' + updated + '.');

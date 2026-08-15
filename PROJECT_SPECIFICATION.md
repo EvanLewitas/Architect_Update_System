@@ -110,6 +110,7 @@ The tracker separates imported fields from office-maintained fields. Imported fi
 | CDs Received | Office | Completion date |
 | CDs Approved | Office | Completion date |
 | Application Sent to Building Department | Office | Completion date |
+| Client Provided Plans | Office | Optional Yes/No flag; when Yes, the architect-facing milestone list is reduced to CDs Approved and Plans Submitted |
 | Internal Notes | Office | Optional internal note that is never shown to architects |
 
 ### 5.2 ARCHITECT CONTACTS
@@ -224,7 +225,7 @@ Each card shows:
 
 ### 6.6 Milestone table
 
-The exact milestone list is:
+The standard milestone list is:
 
 1. Site Visit
 2. Prelims Received
@@ -233,6 +234,13 @@ The exact milestone list is:
 5. CDs Approved
 6. Application Sent to Building Department
 
+For client-provided-plan projects, most standard design-phase status checks are not applicable to CIC. These projects show only:
+
+1. CDs Approved
+2. Plans Submitted
+
+The system treats a project as client-provided-plan work when `Client Provided Plans` is set to Yes, or when the assigned architect value is exactly `Client Provided`.
+
 Milestone behavior:
 
 - All milestone dates are read-only for architects.
@@ -240,7 +248,7 @@ Milestone behavior:
 - A completed milestone displays a checkmark and its completion date.
 - The first milestone without a completion date receives the blue highlight.
 - Later incomplete milestones remain neutral.
-- When all six milestones are complete, no row is treated as the next outstanding milestone.
+- When all applicable milestones are complete, no row is treated as the next outstanding milestone.
 
 ### 6.7 Last-update display
 
