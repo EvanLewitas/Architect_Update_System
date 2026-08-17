@@ -154,9 +154,10 @@ The spreadsheet contains these working tabs:
 | Architect Name | Architect record associated with the permanent link |
 | Submitter Name | Primary contact name applied automatically |
 | Client Name | Unique project key |
-| Response Type | Written Update or No Change |
-| Update Text | Written response, blank only for No Change |
+| Response Type | Written Update, Milestone Update, or No Change |
+| Update Text | Written response, blank for No Change or milestone-only submissions |
 | Documents Needed for Permit | Optional note identifying documents CIC or the client still needs to provide for permitting |
+| Milestone Changes | Comma-separated list of milestones checked off by the architect in that submission |
 | Display Update After Submission | Substantive update selected by the display rules |
 | Replaced Override ID | Override replaced by a new written architect update, when applicable |
 | Submission Metadata | Optional technical audit information supported by Apps Script |
@@ -250,9 +251,11 @@ When office staff enter a date in `Permit Received`, the project no longer appea
 
 Milestone behavior:
 
-- All milestone dates are read-only for architects.
-- Office staff enter and maintain the dates.
-- A completed milestone displays a checkmark and its completion date.
+- Completed milestone dates are locked for architects.
+- Pending milestones can be checked off by the architect's office as part of a weekly submission.
+- When a pending milestone is checked and submitted, the submission timestamp is recorded in that milestone's `PROJECTS` date column.
+- Office staff can also enter and maintain milestone dates directly in `PROJECTS`.
+- A completed milestone displays a checked control and its completion date.
 - The first milestone without a completion date receives the blue highlight.
 - Later incomplete milestones remain neutral.
 - When all applicable milestones are complete, no row is treated as the next outstanding milestone.

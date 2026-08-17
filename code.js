@@ -132,17 +132,19 @@ function saveSubmission(accessToken, payload) {
     let noChangeCount = 0;
 
     responses.forEach(function (response) {
-      const clientName = activeByClient[response.clientKey]['Client Name'];
-      const responseType = response.noChange ? 'No Change' : 'Written Update';
+      const project = activeByClient[response.clientKey];
+      const clientName = project['Client Name'];
+      const milestoneChanges = applyMilestoneUpdates_(project, response.milestoneUpdates, submittedAt);
+      const responseType = response.noChange ? 'No Change' : response.text ? 'Written Update' : 'Milestone Update';
       const updateText = response.noChange ? '' : response.text;
       const documentsNeeded = response.documentsNeeded;
       let displayedText = updateText;
       let replacedOverrideIds = [];
 
-      if (response.noChange) {
+      if (response.noChange || !updateText) {
         const priorDisplay = displayByClient[normalize_(clientName)] || { text: '' };
         displayedText = priorDisplay.text;
-        noChangeCount += 1;
+        if (response.noChange) noChangeCount += 1;
       } else {
         replacedOverrideIds = replaceActiveOverrides_(clientName, submittedAt, submissionId);
       }
@@ -157,7 +159,8 @@ function saveSubmission(accessToken, payload) {
         clientName,
         responseType,
         updateText,
-         documentsNeeded,
+        documentsNeeded,
+        milestoneChanges.join(', '),
         displayedText,
         replacedOverrideIds.join(', '),
         metadata,
@@ -412,6 +415,7 @@ function portalProject_(project, currentRow, displayValue) {
   const display = displayValue || { text: '', date: '', submitter: '' };
   const milestones = milestoneDefinitionsForProject_(project).map(function (definition) {
     return {
+      header: definition.header,
       name: definition.name,
       date: dateKey_(project[definition.header]),
       dateLabel: formatDate_(project[definition.header], 'MMMM d, yyyy'),
@@ -467,16 +471,47 @@ function validateResponses_(input, activeByClient) {
     const noChange = Boolean(item.noChange);
     const text = safeText_(item.updateText).trim();
     const documentsNeeded = safeText_(item.documentsNeeded).trim();
-    if (noChange === Boolean(text)) throw new Error('Choose either No change or a written update for ' + activeByClient[clientKey]['Client Name'] + '.');
+    const milestoneUpdates = validateMilestoneUpdates_(item && item.milestoneUpdates, activeByClient[clientKey]);
+    if (noChange && (text || milestoneUpdates.length)) throw new Error('No change cannot be combined with a written update or milestone checkoff for ' + activeByClient[clientKey]['Client Name'] + '.');
+    if (!noChange && !text && !milestoneUpdates.length) throw new Error('Choose No change, enter a written update, or check off a milestone for ' + activeByClient[clientKey]['Client Name'] + '.');
     if (text.length > CIC.MAX_UPDATE_LENGTH) throw new Error('The update for ' + activeByClient[clientKey]['Client Name'] + ' exceeds ' + CIC.MAX_UPDATE_LENGTH + ' characters.');
     if (documentsNeeded.length > CIC.MAX_UPDATE_LENGTH) throw new Error('The permit documents note for ' + activeByClient[clientKey]['Client Name'] + ' exceeds ' + CIC.MAX_UPDATE_LENGTH + ' characters.');
-    return { clientKey: clientKey, noChange: noChange, text: text, documentsNeeded: documentsNeeded };
+    return { clientKey: clientKey, noChange: noChange, text: text, documentsNeeded: documentsNeeded, milestoneUpdates: milestoneUpdates };
   });
   const activeKeys = Object.keys(activeByClient);
   if (responses.length !== activeKeys.length || activeKeys.some(function (key) { return !seen[key]; })) {
     throw new Error('Every active project must have a response. Reload the page and try again.');
   }
   return responses;
+}
+
+function validateMilestoneUpdates_(input, project) {
+  if (!Array.isArray(input)) return [];
+  const allowed = {};
+  milestoneDefinitionsForProject_(project).forEach(function (definition) {
+    allowed[definition.header] = definition.name;
+  });
+  const seen = {};
+  return input.map(safeText_).map(function (header) {
+    if (!allowed[header]) throw new Error('A milestone update is not valid for ' + project['Client Name'] + '. Reload the page.');
+    if (project[header]) throw new Error(allowed[header] + ' is already marked complete for ' + project['Client Name'] + '. Reload the page.');
+    if (seen[header]) throw new Error('Duplicate milestone update received for ' + project['Client Name'] + '.');
+    seen[header] = true;
+    return header;
+  });
+}
+
+function applyMilestoneUpdates_(project, milestoneUpdates, submittedAt) {
+  if (!milestoneUpdates.length) return [];
+  const sheet = getSheet_(CIC.PROJECTS);
+  const labelsByHeader = {};
+  milestoneDefinitionsForProject_(project).forEach(function (definition) {
+    labelsByHeader[definition.header] = definition.name;
+  });
+  return milestoneUpdates.map(function (header) {
+    sheet.getRange(project._rowNumber, headerColumn_(CIC.PROJECTS, header)).setValue(submittedAt).setNumberFormat('mmm d, yyyy');
+    return labelsByHeader[header] || header;
+  });
 }
 
 function appendLogRows_(rows) {
@@ -506,8 +541,8 @@ function appendLogRows_(rows) {
     ]);
   }
 
-  sheet.getRange(CIC.FIRST_DATA_ROW, 14, formulaRows, 1).setFormulas(latestFormulas);
-  sheet.getRange(CIC.FIRST_DATA_ROW, 15, formulaRows, 1).setFormulas(currentWeekFormulas);
+  sheet.getRange(CIC.FIRST_DATA_ROW, 15, formulaRows, 1).setFormulas(latestFormulas);
+  sheet.getRange(CIC.FIRST_DATA_ROW, 16, formulaRows, 1).setFormulas(currentWeekFormulas);
   SpreadsheetApp.flush();
 }
 
@@ -571,7 +606,7 @@ function refreshCurrentReport_() {
     const current = currentByClient[normalize_(project['Client Name'])];
     const display = displayByClient[normalize_(project['Client Name'])] || { text: '', date: '', submitter: '' };
     const responseType = current ? safeText_(current['Response Type']) : '';
-    const status = !responseType ? 'OVERDUE' : responseType === 'No Change' ? 'COMPLETE - NO CHANGE' : 'COMPLETE - WRITTEN';
+    const status = projectStatusLabel_(responseType);
     const documentsNeeded = current ? safeText_(current['Documents Needed for Permit']) : '';
     return [
       project['Assigned Architect'], project['Client Name'], project['Project Type'], project.Town,
@@ -615,10 +650,17 @@ function refreshProjectStatusColumns_(activeProjects, currentByClient) {
   const values = records.map(function (project) {
     const current = currentByClient[normalize_(project['Client Name'])];
     const response = current ? safeText_(current['Response Type']) : '';
-    const status = !isYes_(project.Active) ? 'INACTIVE' : !response ? 'OVERDUE' : response === 'No Change' ? 'COMPLETE - NO CHANGE' : 'COMPLETE - WRITTEN';
+    const status = !isYes_(project.Active) ? 'INACTIVE' : projectStatusLabel_(response);
     return [response, current ? current['Submitted At'] : '', status];
   });
   sheet.getRange(CIC.FIRST_DATA_ROW, headerColumn_(CIC.PROJECTS, 'Current Week Response'), values.length, 3).setValues(values);
+}
+
+function projectStatusLabel_(responseType) {
+  if (!responseType) return 'OVERDUE';
+  if (responseType === 'No Change') return 'COMPLETE - NO CHANGE';
+  if (responseType === 'Milestone Update') return 'COMPLETE - MILESTONE';
+  return 'COMPLETE - WRITTEN';
 }
 
 function refreshControlDashboard() {
@@ -850,7 +892,7 @@ function validateWorkbook_() {
   const required = {};
   required[CIC.PROJECTS] = ['Client Name', 'Project Type', 'Town', 'Assigned Architect', 'Active', 'Proposal Accepted'].concat(MILESTONE_HEADERS);
   required[CIC.ARCHITECTS] = ['Architect Name', 'Primary Contact Name', 'Primary Email', 'CC Emails', 'Active', 'Private Token Hash', 'Token Created', 'Last Monday Email', 'Last Reminder'];
-  required[CIC.UPDATE_LOG] = ['Submission ID', 'Week Start', 'Submitted At', 'Revision Number', 'Architect Name', 'Submitter Name', 'Client Name', 'Response Type', 'Update Text', 'Documents Needed for Permit', 'Display Update After Submission'];
+  required[CIC.UPDATE_LOG] = ['Submission ID', 'Week Start', 'Submitted At', 'Revision Number', 'Architect Name', 'Submitter Name', 'Client Name', 'Response Type', 'Update Text', 'Documents Needed for Permit', 'Milestone Changes', 'Display Update After Submission'];
   required[CIC.OVERRIDES] = ['Override ID', 'Client Name', 'Override Text', 'Entered At', 'Entered By', 'Active', 'Replaced At', 'Replaced By Submission ID'];
   required[CIC.CONTROL] = ['SETTING', 'VALUE'];
   required[CIC.REPORT] = ['Architect', 'Client Name', 'Project Type', 'Town', 'Status'];
