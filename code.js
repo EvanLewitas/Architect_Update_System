@@ -25,11 +25,13 @@ const MILESTONE_HEADERS = Object.freeze([
   'CDs Received',
   'CDs Approved',
   'Application Sent to Building Department',
+  'Permit Received',
 ]);
 
 const CLIENT_PROVIDED_PLAN_MILESTONES = Object.freeze([
   { header: 'CDs Approved', name: 'CDs Approved' },
   { header: 'Application Sent to Building Department', name: 'Plans Submitted' },
+  { header: 'Permit Received', name: 'Permit Received' },
 ]);
 
 function onOpen() {
@@ -570,35 +572,37 @@ function refreshCurrentReport_() {
     const display = displayByClient[normalize_(project['Client Name'])] || { text: '', date: '', submitter: '' };
     const responseType = current ? safeText_(current['Response Type']) : '';
     const status = !responseType ? 'OVERDUE' : responseType === 'No Change' ? 'COMPLETE - NO CHANGE' : 'COMPLETE - WRITTEN';
+    const documentsNeeded = current ? safeText_(current['Documents Needed for Permit']) : '';
     return [
       project['Assigned Architect'], project['Client Name'], project['Project Type'], project.Town,
       project['Proposal Accepted'] || '', daysSince_(project['Proposal Accepted']),
       project['Site Visit'] || '', project['Prelims Received'] || '', project['Prelims Approved'] || '',
       project['CDs Received'] || '', project['CDs Approved'] || '', project['Application Sent to Building Department'] || '',
-      display.text, display.date || '', display.submitter, responseType,
+      project['Permit Received'] || '',
+      display.text, documentsNeeded, display.date || '', display.submitter, responseType,
       current ? current['Submitted At'] : '', current ? Number(current['Revision Number']) || '' : '', status, index + 1,
     ];
   });
   const report = getSheet_(CIC.REPORT);
   const clearRows = Math.max(report.getMaxRows() - CIC.REPORT_FIRST_ROW + 1, 1);
-  report.getRange(CIC.REPORT_FIRST_ROW, 1, clearRows, 20).clearContent();
+  report.getRange(CIC.REPORT_FIRST_ROW, 1, clearRows, 22).clearContent();
   if (reportRows.length) {
     if (CIC.REPORT_FIRST_ROW + reportRows.length - 1 > report.getMaxRows()) {
       report.insertRowsAfter(report.getMaxRows(), CIC.REPORT_FIRST_ROW + reportRows.length - 1 - report.getMaxRows());
     }
-    report.getRange(CIC.REPORT_FIRST_ROW, 1, reportRows.length, 20).setValues(reportRows);
+    report.getRange(CIC.REPORT_FIRST_ROW, 1, reportRows.length, 22).setValues(reportRows);
   }
-  const completed = reportRows.filter(function (row) { return /^COMPLETE/.test(row[18]); }).length;
-  const overdue = reportRows.filter(function (row) { return row[18] === 'OVERDUE'; }).length;
+  const completed = reportRows.filter(function (row) { return /^COMPLETE/.test(row[20]); }).length;
+  const overdue = reportRows.filter(function (row) { return row[20] === 'OVERDUE'; }).length;
   report.getRange('A5').setValue(reportRows.length);
   report.getRange('C5').setValue(completed);
   report.getRange('E5').setValue(overdue);
   report.getRange('G5').setValue(weekStart).setNumberFormat('mmm d, yyyy');
   if (reportRows.length) {
     report.getRange(CIC.REPORT_FIRST_ROW, 5, reportRows.length, 1).setNumberFormat('mmm d, yyyy');
-    report.getRange(CIC.REPORT_FIRST_ROW, 7, reportRows.length, 6).setNumberFormat('mmm d, yyyy');
-    report.getRange(CIC.REPORT_FIRST_ROW, 14, reportRows.length, 1).setNumberFormat('mmm d, yyyy h:mm AM/PM');
-    report.getRange(CIC.REPORT_FIRST_ROW, 17, reportRows.length, 1).setNumberFormat('mmm d, yyyy h:mm AM/PM');
+    report.getRange(CIC.REPORT_FIRST_ROW, 7, reportRows.length, 7).setNumberFormat('mmm d, yyyy');
+    report.getRange(CIC.REPORT_FIRST_ROW, 16, reportRows.length, 1).setNumberFormat('mmm d, yyyy h:mm AM/PM');
+    report.getRange(CIC.REPORT_FIRST_ROW, 19, reportRows.length, 1).setNumberFormat('mmm d, yyyy h:mm AM/PM');
   }
   refreshProjectStatusColumns_(projects, currentByClient);
   SpreadsheetApp.flush();

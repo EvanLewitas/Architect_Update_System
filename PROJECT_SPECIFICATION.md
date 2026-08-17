@@ -110,6 +110,7 @@ The tracker separates imported fields from office-maintained fields. Imported fi
 | CDs Received | Office | Completion date |
 | CDs Approved | Office | Completion date |
 | Application Sent to Building Department | Office | Completion date |
+| Permit Received | Office | Completion date when CIC has received both a copy of the permit and a fresh copy of the approved plans with town stamp |
 | Client Provided Plans | Office | Optional Yes/No flag; when Yes, the architect-facing milestone list is reduced to CDs Approved and Plans Submitted |
 | Internal Notes | Office | Optional internal note that is never shown to architects |
 
@@ -233,13 +234,17 @@ The standard milestone list is:
 4. CDs Received
 5. CDs Approved
 6. Application Sent to Building Department
+7. Permit Received
 
 For client-provided-plan projects, most standard design-phase status checks are not applicable to CIC. These projects show only:
 
 1. CDs Approved
 2. Plans Submitted
+3. Permit Received
 
 The system treats a project as client-provided-plan work when `Client Provided Plans` is set to Yes, or when the assigned architect value is exactly `Client Provided`.
+
+`Permit Received` means CIC has received both the permit copy and a fresh copy of the approved plans with the town stamp. This is an internal office-maintained checkpoint.
 
 Milestone behavior:
 
@@ -451,6 +456,7 @@ The notice should include:
 | CDs Received | Date |
 | CDs Approved | Date |
 | Application Sent to Building Department | Date |
+| Permit Received | Date |
 | Latest Displayed Update | Active override or latest substantive architect update |
 | Latest Update Date | Timestamp of displayed update |
 | Latest Update Submitter | Submitter associated with displayed update |
