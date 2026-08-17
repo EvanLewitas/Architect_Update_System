@@ -761,8 +761,12 @@ function maxRevision_(rows) {
 
 function getActiveProjectsForArchitect_(architectName) {
   return readRecords_(CIC.PROJECTS).filter(function (row) {
-    return isYes_(row.Active) && normalize_(row['Assigned Architect']) === normalize_(architectName) && safeText_(row['Client Name']);
+    return isActiveForArchitectUpdates_(row) && normalize_(row['Assigned Architect']) === normalize_(architectName);
   }).sort(function (a, b) { return safeText_(a['Client Name']).localeCompare(safeText_(b['Client Name'])); });
+}
+
+function isActiveForArchitectUpdates_(project) {
+  return isYes_(project.Active) && safeText_(project['Client Name']) && !project['Permit Received'];
 }
 
 function getCurrentWeekStart_() {

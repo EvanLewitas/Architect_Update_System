@@ -246,6 +246,8 @@ The system treats a project as client-provided-plan work when `Client Provided P
 
 `Permit Received` means CIC has received both the permit copy and a fresh copy of the approved plans with the town stamp. This is an internal office-maintained checkpoint.
 
+When office staff enter a date in `Permit Received`, the project no longer appears in that architect's portal page and is excluded from future architect request/reminder emails. The project can remain `Active = Yes` for internal reporting.
+
 Milestone behavior:
 
 - All milestone dates are read-only for architects.
